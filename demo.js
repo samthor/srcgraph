@@ -15,7 +15,6 @@
  */
 
 const graph = require('./graph.js');
-const helper = require('./helper.js');
 const path = require('path');
 const rollup = require('rollup');
 
@@ -23,10 +22,19 @@ const args = process.argv.slice(2);
 const all = graph(args).then((modules) => {
 
   return modules.map(async (module) => {
-    const dest = 'dist/' + path.dirname(module.id);
-    await helper.mkdir(dest);
+    const dest = path.normalize('dist/' + module.id);
+
+    const logger = ({loc, frame, message}) => {
+      if (loc) {
+        console.warn(`${loc.file} (${loc.line}:${loc.column}) ${message}`);
+        frame && console.warn(frame);
+      } else {
+        console.warn(message);
+      }
+    };
 
     const bundle = await rollup.rollup({
+      onwarn: logger,
       entry: module.id,
       external: (id) => {
         if (id.startsWith('./')) {
@@ -41,7 +49,8 @@ const all = graph(args).then((modules) => {
 
     const result = await bundle.write({
       format: 'es',
-      dest: `${dest}/${module.id}`,
+      dest: dest,
+      sourceMap: true,
     });
 
     return result;
