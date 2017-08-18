@@ -47,13 +47,13 @@ const all = graph(args).then((modules) => {
       },
     });
 
-    const result = await bundle.write({
+    await bundle.write({
       format: 'es',
       dest: dest,
       sourceMap: true,
     });
 
-    return result;
+    return module;
   });
 
 });
