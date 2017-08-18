@@ -1,0 +1,11 @@
+{
+  "name": "srcgraph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "acorn": "^5.1.1",
+    "mkdirp": "^0.5.1",
+    "rollup": "^0.47.6"
+  }
+}
