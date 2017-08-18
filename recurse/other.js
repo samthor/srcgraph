@@ -1,1 +1,0 @@
-console.info('other JS file');
