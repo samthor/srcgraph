@@ -28,22 +28,29 @@ const all = graph(args).then((modules) => {
 
     const bundle = await rollup.rollup({
       entry: module.id,
-      external: (id) => !module.srcs.includes(id),
+      external: (id) => {
+        if (id.startsWith('./')) {
+          // these are relative to the module file being evaluated, so don't have an opinion
+          // e.g., 'foo/bar/test.js' importing './other.js' will see that literal passed here
+          return undefined;
+        }
+        const rel = './' + path.relative('.', id);
+        return !module.srcs.includes(rel);
+      },
     });
+
     const result = await bundle.write({
       format: 'es',
       dest: `${dest}/${module.id}`,
     });
 
-    console.info('got result', result);
     return result;
   });
 
 });
 
-
-Promise.all(all).then((done) => {
-  console.info('done!');
+all.then((all) => Promise.all(all)).then((done) => {
+  console.info('done!', done);
 }, (err) => {
   console.error('error', err);
 });
