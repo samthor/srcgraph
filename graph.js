@@ -91,9 +91,13 @@ module.exports = async function(entrypoints) {
   });
 
   // find all files in the same module
-  const grow = (from, entrypoint) => {
+  const grow = (from) => {
     const hash = hashes.get(from);
     const wouldSplitSrc = (src) => {
+      // entrypoints are always their own starting point
+      if (entrypoints.includes(src)) {
+        return true;
+      }
       // checks that the src is the given hash, AND has inputs only matching that hash
       if (hashes.get(src) !== hash) {
         return true;
@@ -103,7 +107,7 @@ module.exports = async function(entrypoints) {
     };
 
     // not a module entrypoint
-    if (!entrypoint && !wouldSplitSrc(from)) {
+    if (!wouldSplitSrc(from)) {
       return null;
     }
 
@@ -128,9 +132,9 @@ module.exports = async function(entrypoints) {
 
   const modules = [];
   hashes.forEach((hash, src) => {
-    const entrypoint = entrypoints.includes(src);
-    const srcs = grow(src, entrypoint);
+    const srcs = grow(src);
     if (srcs) {
+      const entrypoint = entrypoints.includes(src);
       modules.push(new Module(src, srcs, entrypoint));
     }
   });
