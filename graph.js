@@ -83,11 +83,11 @@ module.exports = async function(entrypoints) {
   // walk over graph and set (1<<n) for all demands
   const hashes = new Map();
   entrypoints.forEach((entrypoint, n) => {
-    const pending = [entrypoint];
-    for (let i = 0, next; next = pending[i]; ++i) {
+    const pending = new Set([entrypoint]);
+    pending.forEach((next) => {
       hashes.set(next, (hashes.get(next) || 0) | (1 << n));
-      map.requires(next).forEach((src) => pending.includes(src) || pending.push(src));
-    }
+      map.requires(next).forEach((src) => pending.add(src));
+    });
   });
 
   // find all files in the same module

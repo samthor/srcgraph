@@ -29,12 +29,7 @@ const options = {
  */
 function readFile(target) {
   return new Promise((resolve, reject) => {
-    fs.readFile(target, 'utf8', (err, data) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(data);
-    });
+    fs.readFile(target, 'utf8', (err, data) => err ? reject(err) : resolve(data));
   });
 }
 
@@ -78,36 +73,34 @@ async function importsForFile(target) {
 }
 
 /**
- * Reads JS source files and returns a Map of their dependencies.
+ * Reads JS source files and returns a Map of their direct dependencies.
  *
  * @param {!Array<string>} entrypoints
  * @return {!Map<string, !Array<string>>}
  */
 module.exports = function(entrypoints) {
-  /** @type {!Map<string, Array<string>>} */
   const all = new Map();
+  const pending = new Set();
 
   return new Promise((resolve, reject) => {
-    const maybeResolve = () => {
-      let done = true;
-      all.forEach((value) => {
-        if (value === null) {
-          done = false;
-        }
-      });
-      done && resolve(all);
+    const maybeResolve = (target) => {
+      pending.delete(target);
+      pending.size || resolve(all);
     };
 
     const push = (target) => {
-      if (all.has(target)) { return; }
+      if (all.has(target)) {
+        return null;
+      }
       all.set(target, null);
+      pending.add(target);
 
-      importsForFile(target)
+      return importsForFile(target)
           .then((imports) => {
             all.set(target, imports);
             imports.forEach(push);
+            maybeResolve(target);
           })
-          .then(maybeResolve)
           .catch(reject);
     };
 
