@@ -8,3 +8,4 @@ export function getNextId() {
   return ++id;
 }
 
+import './other.js';
