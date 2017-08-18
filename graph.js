@@ -15,6 +15,7 @@
  */
 
 const reader = require('./reader.js');
+const path = require('path');
 
 class BiMap {
   /**
@@ -68,6 +69,24 @@ class Module {
     this.id = id;
     this.srcs = srcs.slice();
     this.entrypoint = entrypoint;
+  }
+
+  /**
+   * @param {string} id
+   * @param {?string=} pwd
+   * @return {boolean} whether this script is external to this module
+   */
+  external(id, pwd='.') {
+    if (id.startsWith('./')) {
+      // these are relative to the module file being evaluated, so don't have an opinion
+      // e.g., 'foo/bar/test.js' importing './other.js' will see that literal passed here
+      return undefined;
+    } else if (!id.startsWith('/')) {
+      // this is an unknown/unsupported module, it's definitely an extern
+      return true;
+    }
+    const rel = './' + path.relative(pwd, id);
+    return !this.srcs.includes(rel);
   }
 }
 
