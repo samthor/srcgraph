@@ -14,7 +14,7 @@
  * the License.
  */
 
-const mkdirp = reqiure('mkdirp');
+const mkdirp = require('mkdirp');
 
 module.exports = {
   mkdir: (t) => {
