@@ -1,8 +1,8 @@
 {
   "name": "srcgraph",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "acorn": "^5.1.1",
     "rollup": "^0.47.6"
