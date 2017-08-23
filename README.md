@@ -36,7 +36,7 @@ To determine the minimum number of modules needed for a complex dependency graph
 
 ```js
 const graph = require('./graph.js');
-graph(['test/entry1.js', 'test/entry2.js']).then((modules) => {
+graph(['demo/src/entry1.js', 'demo/src/entry2.js']).then((modules) => {
   modules.forEach((module) => {
     console.info(module);
   });
@@ -60,7 +60,7 @@ const srcgraph = require('srcgraph').gulp;
 
 gulp.task('rollup', function() {
   const options = {};
-  return gulp.src(['test/entry*.js'])
+  return gulp.src(['path/to/your/entrypoints/*.js'])
     .pipe(srcgraph(options))
     .pipe(gulp.dest('./dist'));
 });
