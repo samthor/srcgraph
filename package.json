@@ -1,13 +1,11 @@
 {
   "name": "srcgraph",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "index.js",
   "license": "Apache-2.0",
   "dependencies": {
     "acorn": "^5.1.1",
-    "rollup": "^0.47.6"
-  },
-  "optionalDependencies": {
+    "rollup": "^0.47.6",
     "gulp": "^3.9.1",
     "vinyl-sourcemaps-apply": "^0.2.1",
     "through2": "^2.0.3"
