@@ -23,7 +23,7 @@ const File = require('vinyl');
 // TODO: pass around sourcemaps
 const sourcemaps = require('vinyl-sourcemaps-apply')
 
-module.exports = function() {
+module.exports = function(options) {
   const entrypoints = [];
 
   function buffer(file, enc, cb) {
