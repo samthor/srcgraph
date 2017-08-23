@@ -19,6 +19,7 @@ const srcgraph = require('../plugin.js');
 
 gulp.task('rollup', function() {
   const options = {
+    format: 'es',
   };
   return gulp.src(['src/entry*.js'])
     .pipe(srcgraph(options))

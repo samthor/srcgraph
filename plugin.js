@@ -24,7 +24,24 @@ const File = require('vinyl');
 const sourcemaps = require('vinyl-sourcemaps-apply')
 
 module.exports = function(options) {
+  options = Object.assign({
+    format: 'es',
+  }, options);
+
   const entrypoints = [];
+
+  const moduleNames = new Map();
+  function flattenModuleId(id) {
+    const flat = id.replace(/[^\w]/g, '_');
+
+    let candidate = flat;
+    let count = 0;
+    while (moduleNames.has(candidate)) {
+      candidate = flat + (++count);
+    }
+    moduleNames.set(id, candidate);
+    return candidate;
+  }
 
   function buffer(file, enc, cb) {
     if (file.isNull()) {
@@ -40,6 +57,11 @@ module.exports = function(options) {
     // graph wants relative paths
     const paths = entrypoints.map((file) => path.relative('.', file.path));
     const modules = await graph(paths);
+    modules.forEach((module) => flattenModuleId(module.id));
+
+    // store absolute module path => relative module ID, so we can resolve globals for IIFE mode
+    const absolutePaths = new Map();
+    modules.forEach((module) => absolutePaths[path.resolve(module.id)] = module.id);
 
     for (let i = 0, module; module = modules[i]; ++i) {
       const bundle = await rollup.rollup({
@@ -49,9 +71,12 @@ module.exports = function(options) {
         external: (id) => module.external(id),
       });
 
+      const moduleName = flattenModuleId(module.id);
       const result = await bundle.generate({
-        format: 'es',
+        format: options.format,
+        moduleName,
         sourceMap: true,
+        globals: (id) => flattenModuleId(absolutePaths[id]),
       });
 
       this.push(new File({
