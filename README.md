@@ -1,5 +1,6 @@
 srcgraph code splits ES6 modules.
 It accepts multiple JS module entrypoints, and returns the minimum number of modules required to represent the source graph.
+If you want to know more, see [my talk from Polymer Summit 2017](https://www.youtube.com/watch?v=fIP4pjAqCtQ&feature=youtu.be&t=27m35s) (links to the discussion of srcgraph).
 
 srcgraph includes a Gulp plugin which generates said modules.
 It can also be run to generate loosely-coupled script tags that do not use `import` and `export.`
