@@ -87,6 +87,28 @@ You'll be responsible for including the files in the right order (unlike ES6 mod
     .pipe(gulp.dest('./dist'));  // generates code without import and export
 ```
 
+## Caveats
+
+If your ES6 module code relies on the ordering of import statements to run code, then srcgraph may not be for you.
+For example:
+
+```js
+import './code-that-effects-window.js';    // makes window.blah
+import './code-that-uses-that-effect.js';  // calls window.blah()
+```
+
+If the first dependency is bundled but the second is not, then the second dependency will fail to run—`import` is hoisted, and always runs before other code.
+The output would look like:
+
+```js
+window.blah = function() {
+  // very important function
+};
+import './code-that-uses-that-effect.js';  // calls window.blah(), but runs before any normal code
+```
+
+This is fairly uncommon, and the example is contrived, but effects all approaches to split bundling for ES6 modules.
+
 ## License
 
 This is available under an [Apache2 license](LICENSE).
