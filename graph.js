@@ -90,13 +90,23 @@ class Module {
   }
 }
 
-
-module.exports = async function(entrypoints) {
+/**
+ * @param {!Array<string>} entrypoints
+ * @return {Promise<!Array<!Module>>}
+ */
+module.exports = function(entrypoints) {
   entrypoints = entrypoints.map((entrypoint) => {
     return entrypoint.startsWith('./') ? entrypoint : './' + entrypoint;
   });
+  return reader(entrypoints).then((graph) => process(graph, entrypoints));
+};
 
-  const graph = await reader(entrypoints);
+/**
+ * @param {!Map<string, !Array<string>>} graph
+ * @param {!Array<string>} entrypoints
+ * @return {Promise<!Array<!Module>>}
+ */
+function process(graph, entrypoints) {
   const map = new BiMap(graph);
 
   // walk over graph and set (1<<n) for all demands
@@ -159,4 +169,4 @@ module.exports = async function(entrypoints) {
   });
 
   return modules;
-};
+}
