@@ -48,28 +48,29 @@ function localResolve(src) {
  * @param {string|!Promise<string>} target
  * @return {!Promise<!Array<string>>} return the direct deps of this file
  */
-async function importsForFile(target) {
-  const data = await readFile(target);
-  const dir = path.dirname(target);
+function importsForFile(target) {
+  return readFile(target).then((data) => {
+    const dir = path.dirname(target);
 
-  const s = new Set();
-  walk.simple(acorn.parse(data, options), {
-    ImportDeclaration(node) {
-      const other = node.source.value;
+    const s = new Set();
+    walk.simple(acorn.parse(data, options), {
+      ImportDeclaration(node) {
+        const other = node.source.value;
 
-      if (!other.startsWith('./') && !other.startsWith('../')) {
-        // TODO: unsupported import type
-        return;
+        if (!other.startsWith('./') && !other.startsWith('../')) {
+          // TODO: unsupported import type
+          return;
+        }
+
+        const out = localResolve(path.join(dir, other));
+        if (out !== target) {
+          s.add(out);
+        }
       }
+    });
 
-      const out = localResolve(path.join(dir, other));
-      if (out !== target) {
-        s.add(out);
-      }
-    }
+    return [...s];
   });
-
-  return [...s];
 }
 
 /**
