@@ -53,38 +53,42 @@ module.exports = function(options) {
     cb();
   }
 
-  async function end() {
+  function end() {
     // graph wants relative paths
     const paths = entrypoints.map((file) => path.relative('.', file.path));
-    const modules = await graph(paths);
-    modules.forEach((module) => flattenModuleId(module.id));
-
-    // store absolute module path => relative module ID, so we can resolve globals for IIFE mode
     const absolutePaths = new Map();
-    modules.forEach((module) => absolutePaths[path.resolve(module.id)] = module.id);
 
-    for (let i = 0, module; module = modules[i]; ++i) {
-      const bundle = await rollup.rollup({
+    const process = (moduleName, module) => {
+      const rollupConf = {
         // TODO: local gulp logger?
 //        onwarn: logger,
         entry: module.id,
         external: (id) => module.external(id),
-      });
-
-      const moduleName = flattenModuleId(module.id);
-      const result = await bundle.generate({
+      };
+      const bundleConf = {
         format: options.format,
         moduleName,
         sourceMap: true,
         globals: (id) => flattenModuleId(absolutePaths[id]),
-      });
+      };
+      return rollup.rollup(rollupConf)
+          .then((bundle) => bundle.generate(bundleConf))
+          .then((result) => {
+            // got result module, push onto gulp output
+            this.push(new File({
+              path: path.resolve(module.id),
+              contents: new Buffer(result.code),
+            }));
+          });
+    };
 
-      this.push(new File({
-        path: path.resolve(module.id),
-        contents: new Buffer(result.code),
+    return graph(paths).then((modules) => {
+      return Promise.all(modules.map((module) => {
+        // store absolute module path => relative module ID, so we can resolve globals for IIFEs
+        absolutePaths[path.resolve(module.id)] = module.id;
+        return process(flattenModuleId(module.id), module);
       }));
-    }
-
+    });
   }
 
   return new through.obj(buffer, function(cb) {
