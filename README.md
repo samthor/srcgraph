@@ -1,3 +1,9 @@
+Hello! 🚨 **You probably don't need this anymore** 🚨 as it was originally authored back in 2017. [Rollup](https://rollupjs.org/) has supported generating a minimum bundle graph _for a while now_.
+
+The README is left below for posterity.
+
+# srcgraph
+
 srcgraph code splits ES6 modules.
 It accepts multiple JS module entrypoints, and returns the minimum number of modules required to represent the source graph.
 If you want to know more, see [my talk from Polymer Summit 2017](https://www.youtube.com/watch?v=fIP4pjAqCtQ&feature=youtu.be&t=27m35s) (links to the discussion of srcgraph).
